@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrentoInBici</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://www.openlayers.org/api/OpenLayers.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.css"></link>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="overlay"></div>
+    <div class="content">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">TrentoInBici</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        
+            <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <p id="emailLoggedUser" class="mr-3"></p>
+                        <a class="btn btn-primary" id="btnLogin" href="login.html">Login</a>
+                    </li>
+                    <button id="btnLogout" class="btn btn-primary mr-2 log" onclick="logout()">Logout</button>
+                </ul>
+            </div>
+        </nav>
+<div class="container mt-4">
+    <div class="page-description">
+        <h1>Benvenuto a TrentoInBici</h1>
+        <h3>Muoversi in bici a Trento non è mai stato così facile!</h3>
+        <p>Questa è la piattaforma per trovare rastrelliere per le tue biciclette e stazioni di bike 
+            sharing a Trento. Puoi utilizzare i pulsanti qui sotto per cercare rastrelliere vicino a te, 
+            vicino alla tua destinazione, la stazione di bike sharing più vicina, e altro ancora.</p>
+            <a class="btn btn-primary mr-2 btn-custom" id="btnInizia" href="#info">Scopri di più</a>
+            <div class="images-container">
+                <img src="res/logoUnitn.png" alt="LogoUnitn">
+                <img src="res/logoComuneTrento.png" alt="logo-comuneTrento">
+            </div>
+            <div class="bike-animation"></div>
+    </div>
+    <div class="page-info" id="info">
+        <h2>Cosa si può fare su questa piattaforma?</h2>
+        <p>Se non hai una bici e devi andare in un posto e vuoi valutare se riesci ad arrivarci prima in bici puoi cliccare il 
+            pulsante "Sono senza bici e voglio arrivare a destinazione" che ti aiuterà a trovare gli stalli Bike Sharing più
+            vicini a te e alla tua destinazione e ti creerà il percorso più adatto.<br>
+            <b>Stallo Bike Sharing:</b>
+        </p>
+        <img class="info-image" src="res/stalloBikeSharing.jpg" alt="imgStalloBikeSharing">
+        <p>Se vuoi sapere dove puoi parcheggiare la tua bici in un posto adeguato in una rastrelliera, clicca "Rastrelliera vicino a me"<br>
+        <b>Rastrelliera:</b></p>
+        <img class="info-image" src="res/rastrelliera.png" alt="imgRastrelliera">
+
+        <a class="btn btn-primary mr-2 btn-custom" id="btnInizia" href="#about">Inizia</a>
+        
+    </div>
+    <!--<h1 class="text-center">TrentoInBici</h1>-->
+    <div class="d-flex justify-content-center mb-3" id="about">
+        <button id="btn4" class="btn btn-primary mr-2 mb-2 btn-custom" onclick="tragittoInteroBikeSharing()">Sono senza bici e voglio arrivare a destinazione
+            <span class="tooltip">Clicca qui per spostarti in bici verso la tua destinazione</span></button>
+        <button id="btn1" class="btn btn-primary mr-2 mb-2 btn-custom" onclick="posizioneDispositivo()">Rastrelliera vicino a me
+            <span class="tooltip">Clicca qui per visualizzare le rastrelliere più vicine a te</span></button>
+        <button id="btn2" class="btn btn-primary mr-2 mb-2 btn-custom" onclick="posizioneDestinazione()">Rastrelliera vicino alla mia destinazione
+            <span class="tooltip">Clicca qui per visualizzare le rastrelliere più vicine al luogo desiderato</span></button>
+        <button id="btn3" class="btn btn-primary mr-2 mb-2 btn-custom" onclick="stazioneBikeSharing()">Stazione Bike Sharing più vicina
+            <span class="tooltip">Clicca qui per visualizzare le stazioni Bike Sharing più vicine a te</span></button>
+        <button id="btn8" class="btn btn-info mr-2 mb-2 btn-custom log" onclick="aggiungiRastrelliera()">Aggiungi rastrelliera</button>
+        <button id="btn9" class="btn btn-info mr-2 mb-2 btn-custom log" onclick="">Visualizza rastrelliere preferite</button>
+        <button id="btn10" class="btn btn-info mr-2 mb-2 btn-custom log" onclick="">Fai una segnalazione</button>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div id="divResult" class="divResult">
+                <h3 id="initDivResult">Clicca un pulsante per iniziare:</h3>
+                <form id="addressFrom" class="mb-3">
+                    <p id="labelDestinazione"></p>
+                    <p id="labelCliccaSuMappa" class="elemRes"></p>
+                </form>
+                <p id="result"></p>
+                <div id="btnConfermaDestinazione"></div>
+                <p id="position" class="elemRes"></p>
+                <h3 class="mt-4 elemRes titleRast" id="titoloRastrelliere"></h3>
+                <div class="spinner-container text-center" id="spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <ul id="rastrelliere" class="list-group mt-3"></ul>
+                <div id="btnIniziaNavigazione" class="mt-3"></div>
+                <p id="alarmNavigazione"></p>
+            </div>
+        </div>
+        <div class="col-md-6">
+
+            <div id="mappaRastrelliera" class="mt-4" style="height: 600px; width: 100%"></div>
+
+            <div id="mappe" class="mt-4"></div>
+        </div>
+    </div>
+
+    <button id="btn5" class="btn btn-primary mr-2 btn-custom" onclick="tutteRastrelliere()">Visualizza tutte le rastrelliere</button>
+    <button id="btn7" class="btn btn-primary mr-2 btn-custom" onclick="tuttiBikeSharing()">Visualizza tutti gli stalli Bike Sharing</button>
+</div>
+</div>
+
+<script src="script.js"></script>
+<script src="utils.js"></script>
+
+<script>
+   const latTrento=46.07235047020391;
+  const lonTrento=11.122617996278098;
+  //costanti confini di Trento
+    const LAT_SUP=46.1331;
+    const LAT_INF=46.0284;
+    const LON_SX= 11.0819;
+    const LON_DX=11.1582;
+
+  let first=true;
+  let latDest;
+  let lonDest;
+  let latStart;
+  let lonStart;
+
+
+  document.querySelector('.divResult').style.height = 'auto';
+  document.querySelector('.page-info').style.height = 'auto';
+
+  const epsg4326 = 'EPSG:4326';
+  const projection = ol.proj.get(epsg4326);
+    // Creazione della mappa
+    const map = new ol.Map({
+      target: 'mappaRastrelliera',
+      view: new ol.View({
+          center: ol.proj.fromLonLat([lonTrento, latTrento]),
+          zoom: 12
+      })
+  });
+
+  // Aggiunta dei layer OSM e Wikimedia
+  map.addLayer(new ol.layer.Tile({
+      source: new ol.source.OSM()
+  }));
+  //problemi CORS
+  /*map.addLayer(new ol.layer.Tile({
+      source: new ol.source.OSM({
+          url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png',
+          attributions: [
+              '&copy; <a href="http://www.openstreetmap.org/">OpenStreetMap</a>',
+              '&copy; <a href="https://foundation.wikimedia.org/wiki/Maps_Terms_of_Use">Wikimedia</a>'
+          ]
+      })
+  }));*/
+
+  // Aggiunta dei controlli di navigazione
+  map.addControl(new ol.control.Zoom());
+  map.addControl(new ol.control.MousePosition());
+  map.addControl(new ol.control.ScaleLine());
+  //map.addControl(new ol.control.LayerSwitcher());
+
+  //layer per marker destinazione
+  const markerDest = new ol.layer.Vector({
+source: new ol.source.Vector(),
+style: new ol.style.Style({
+    image: new ol.style.Icon({
+        src: 'res/icona-destinazione.png', //creare nuova icona
+        anchor: [0.5, 1],
+        scale: 0.8
+    })
+})
+});
+map.addLayer(markerDest);
+
+//layer per marker rastrelliere
+const markerLayer = new ol.layer.Vector({
+  source: new ol.source.Vector(),
+  style: new ol.style.Style({
+      image: new ol.style.Icon({
+          src: 'res/icona-posizione.png',
+          anchor: [0.5, 1],
+          scale: 0.8
+      })
+  })
+});
+map.addLayer(markerLayer);
+
+const rastrellieraLayer = new ol.layer.Vector({
+    source: new ol.source.Vector()
+});
+map.addLayer(rastrellieraLayer);
+
+const container = document.getElementById("labelDestinazione");
+
+// Pulizia del contenuto precedente del container
+container.innerHTML = '';
+
+const containerAggiungiRastrelliera = document.getElementById("labelDestinazione");
+
+// Pulizia del contenuto precedente del container
+containerAggiungiRastrelliera.innerHTML = '';
+
+const form1 = document.createElement('form');
+form1.classList.add('elemCreato');
+form1.id = 'addressForm';
+
+const form2 = document.createElement('form');
+form2.classList.add('elemCreato');
+form2.id = 'addressForm';
+
+const formAggiungiRastrelliera = document.createElement('form');
+formAggiungiRastrelliera.classList.add('elemCreato');
+formAggiungiRastrelliera.id = 'addressForm';
+
+const label = document.createElement('label');
+label.classList.add('elemCreato');
+label.textContent = 'Inserisci la tua destinazione: ';
+
+const input = document.createElement('input');
+input.classList.add('elemCreato');
+input.type = 'text';
+input.id = 'addressInput';
+input.name = 'inputString';
+input.placeholder = 'La tua destinazione...';
+
+const resultElement = document.createElement('p');
+resultElement.classList.add('elemCreato');
+
+const submitDest = document.createElement('button');
+submitDest.classList.add('elemCreato', 'btn', 'btn-primary', 'mr-2');
+submitDest.type = 'submit';
+submitDest.textContent = 'Invia';
+
+const submit = document.createElement('button');
+submit.classList.add('elemCreato', 'btn', 'btn-primary', 'mr-2');
+submit.type = 'submit';
+submit.textContent = 'Invia';
+
+
+const labelAggiungiRastrelliera = document.createElement('label');
+labelAggiungiRastrelliera.classList.add('elemCreato');
+labelAggiungiRastrelliera.textContent = 'Inserisci la posizione della rastrelliera: ';
+
+const inputAggiungiRastrelliera = document.createElement('input');
+inputAggiungiRastrelliera.classList.add('elemCreato');
+inputAggiungiRastrelliera.type = 'text';
+inputAggiungiRastrelliera.id = 'addressInput';
+inputAggiungiRastrelliera.name = 'inputString';
+inputAggiungiRastrelliera.placeholder = 'La posizione della rastrelliera...';
+
+const submitAggiungiRastrelliera = document.createElement('button');
+submitAggiungiRastrelliera.classList.add('elemCreato', 'btn', 'btn-primary', 'mr-2');
+submitAggiungiRastrelliera.type = 'submit';
+submitAggiungiRastrelliera.textContent = 'Invia';
+
+const resultElementAggiungiRastrelliera = document.createElement('p');
+resultElementAggiungiRastrelliera.classList.add('elemCreato');
+
+document.getElementById("btn8").style.display="none";
+document.getElementById("btn9").style.display="none";
+document.getElementById("btn10").style.display="none";
+document.getElementById("btnLogout").style.display="none";
+
+var loggedUser={
+    email: null,
+    token: null,
+    id: null,
+    self: null,
+    sessionTime: null
+};
+
+//var sessionTimeout = 30 * 1000; //5 secondi
+var timeout;
+
+document.addEventListener("DOMContentLoaded", function() {
+    loggedUser.email = sessionStorage.getItem("loggedUserEmail");
+    loggedUser.token = sessionStorage.getItem("loggedUserToken");
+    loggedUser.id = sessionStorage.getItem("loggedUserId");
+    loggedUser.self = sessionStorage.getItem("loggedUserSelf");
+    loggedUser.sessionTime = sessionStorage.getItem("loggedUserTime");
+    loggedUser.sessionTime=loggedUser.sessionTime*1000; //in secondi
+    if (loggedUser.token) {
+        console.log("Tempo della sessione in ms: "+ loggedUser.sessionTime);
+        utenteLoggato();
+        resetTimeout();
+    }
+});
+
+
+</script>
+</body>
+</html>

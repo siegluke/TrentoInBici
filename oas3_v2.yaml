@@ -1,0 +1,701 @@
+openapi: 3.0.0
+info:
+  version: '2.0'
+  title: "TrentoInBici OpenAPI 3.0"
+  description: API for moving and parking the bicycle in Trento. 
+  license:
+    name: MIT
+servers:
+  - url: https://trentoinbici.onrender.com/api/v2
+    description: trentoinbici.onrender.com
+paths:
+  /biciPropria/all:
+      get:
+        description: >-
+          Return all the racks
+        summary: Return all the racks
+        responses:
+          '200':
+            description: All rastrelliere received successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: All rastrelliere received successfully
+                    body:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Rack'
+  /biciPropria:
+    post:
+      description: >-
+        Return the 5 racks nearest to a position
+      summary: Return 5 racks near to a position
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: double
+                      description: Latitude of position.
+                      example: 46.7128
+                    longitude:
+                      type: number
+                      format: double
+                      description: Longitude of position.
+                      example: 11.1211
+                  required:
+                    - latitude
+                    - longitude
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Position received successfully
+                  body:
+                    type: array
+                    description: List of 5 racks near to the a position with distances and time
+                    items:
+                     $ref: '#/components/schemas/Rack'
+        '400':
+            description: no position given, longitude null or latitude null or both
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      description: NO Position
+                      example: NO Position
+        '401':
+            description: position out of borders of Trento
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      description: La posizione non è compresa nel comune di Trento
+                      example: La posizione non è compresa nel comune di Trento                      
+                          
+  /senzaBici/all:
+      get:
+        description: >-
+          Return all the bike sharing stations of Trento
+        summary: Return all the bike sharing stations of Trento
+        responses:
+          '200':
+            description: All stalli received successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: All stalli received successfully
+                    body:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/BikeSharingStation'
+  /senzaBici:
+    post:
+      description: >-
+        Return the 3 bike sharing position nearest to a position
+      summary: Return the 3 bike sharing position nearest to a position
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: double
+                      description: Latitude of position.
+                      example: 46.7128
+                    longitude:
+                      type: number
+                      format: double
+                      description: Longitude of position.
+                      example: 11.1211
+                  required:
+                    - latitude
+                    - longitude
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Position received successfully
+                  body:
+                    type: array
+                    description: List of 3 bike sharing stations near to the a position with distances and time
+                    items:
+                      $ref: '#/components/schemas/BikeSharingStation'
+        '400':
+            description: no position given, longitude null or latitude null or both
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      description: NO Position
+                      example: NO Position
+        '401':
+            description: position out of borders of Trento
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      description: La posizione non è compresa nel comune di Trento
+                      example: La posizione non è compresa nel comune di Trento
+  /senzaBici/tragittoIntero:
+    post:
+      description: >-
+        Returns the details of the route between a start position and a destination by calculating the two best bike sharing stations and the route by walking
+      summary: Returns the details of the route between a start position and a destination by calculating the two best bike sharing stations and the route by walking
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                positionStart:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: double
+                      description: Latitude of start position.
+                      example: 46.7128
+                    longitude:
+                      type: number
+                      format: double
+                      description: Longitude of start position.
+                      example: 11.1211
+                  required:
+                    - latitude
+                    - longitude
+                positionDestination:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: double
+                      description: Latitude of destination position.
+                      example: 46.7128
+                    longitude:
+                      type: number
+                      format: double
+                      description: Longitude of destination position.
+                      example: 11.1211
+                  required:
+                    - latitude
+                    - longitude
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Tappe percorso più efficiente
+                  body:
+                    type: array
+                    description: List of 3 bike sharing stations near to the a position with distances and time
+                    items:
+                      type: object
+                      properties:
+                        bestStops:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/BikeSharingStation' 
+                        minDuration:
+                          type: number
+                          format: double
+                          description: Minimum duration in minutes
+                          example: 27.87666666666667
+                        minDistance:
+                          type: number
+                          format: double
+                          description: Minimum distance in kilometers
+                          example: 5.2151
+                        aPiedi:
+                          type: object
+                          properties:
+                            duration:
+                              type: number
+                              format: double
+                              description: Walking duration in minutes
+                              example: 52.263333333333335
+                            distance:
+                              type: number
+                              format: double
+                              description: Walking distance in kilometers
+                              example: 4.3555
+        '400':
+            description: no start position given, longitude null or latitude null or both
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      description: NO start position
+                      example: NO start position
+        '400':
+            description: no destination position given, longitude null or latitude null or both
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      description: NO destination position
+                      example: NO destination position
+        '401':
+            description: start position out of borders of Trento
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      description: La posizione di partenza non è compresa nel comune di Trento
+                      example: La posizione di partenza non è compresa nel comune di Trento  
+        '401':
+            description: destination position out of borders of Trento
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      description: La posizione di arrivo non è compresa nel comune di Trento
+                      example: La posizione di arrivo non è compresa nel comune di Trento                      
+                      
+  /gestoreDataBase:
+    post:
+      description: >-
+        Receives a rack for request to add rack in database to administrator
+      summary: Receives a rack for request to add rack in database to administrator
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: double
+                      description: Latitude of position.
+                      example: 46.7128
+                    longitude:
+                      type: number
+                      format: double
+                      description: Longitude of position.
+                      example: 11.1211
+                  required:
+                    - latitude
+                    - longitude
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Position received successfully
+                  body:
+                    type: array
+                    description: List of 3 bike sharing stations near to the a position with distances and time
+                    items:
+                      type: object
+                      properties:
+                        rastrellieraGiaPresente:
+                          type: boolean
+                        rastrellieraGiaSegnalata:
+                          type: boolean
+        '400':
+            description: no position given, longitude null or latitude null or both
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      description: NO Position
+                      example: NO Position
+        '401':
+            description: position out of borders of Trento
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      description: La posizione non è compresa nel comune di Trento
+                      example: La posizione non è compresa nel comune di Trento
+  /adminDatabase:
+      get:
+        description: >-
+          Return all reported racks
+        summary: Return all reported racks
+        responses:
+          '200':
+            description: All reported racks
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Position received successfully
+                    body:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Rack'
+        parameters:
+          - in: header
+            name: x-access-token
+            schema:
+              type: string
+            required: true
+            description: Access token for authentication
+  /adminDatabase/add:
+    post:
+      description: >-
+        Receives the rack to add to the database
+      summary: Receives the rack to add to the database
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: object
+                  properties:
+                    id:
+                    type: string
+                    example: "1"
+                    latitude:
+                      type: number
+                      format: double
+                      description: Latitude of position.
+                      example: 46.7128
+                    longitude:
+                      type: number
+                      format: double
+                      description: Longitude of position.
+                      example: 11.1211
+                  required:
+                    - latitude
+                    - longitude
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Racks added successfully
+  /adminDatabase/noAdd:
+    post:
+      description: >-
+        Receives the rack to delete from the database
+      summary: Receives the rack to delete from the database
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: object
+                  properties:
+                    id:
+                    type: string
+                    example: "1"
+                    latitude:
+                      type: number
+                      format: double
+                      description: Latitude of position.
+                      example: 46.7128
+                    longitude:
+                      type: number
+                      format: double
+                      description: Longitude of position.
+                      example: 11.1211
+                  required:
+                    - latitude
+                    - longitude
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Racks deleted successfully
+  /authentication:
+    post:
+      description: >-
+        Request for authentication
+      summary: Request for authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  email:
+                    type: string
+                  password:
+                   type: string
+                  required:
+                  - email
+                  - password
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Enjoy your token!
+                  success:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    description: token for authentication
+                  email:
+                    type: string
+                  id:
+                    type: string
+                  admin:
+                    type: boolean
+                    description: true if admin, false if not
+                  sessionTime:
+                    type: number
+                    description: time for the session in seconds
+                  self:
+                    type: string
+        '400':
+            description: User not found in database
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      example: false
+                    message:
+                      type: string
+                      description: Authentication failed. User not found.
+                      example: Authentication failed. User not found.
+        '400':
+            description: Wrong password
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      example: false
+                    message:
+                      type: string
+                      description: Authentication failed. Wrong password.
+                      example: Authentication failed. Wrong password.
+  /googleMaps:
+    post:
+      summary: Start navigation on GoogleMaps
+      description: >
+        Start navigation on GoogleMaps with the destination choosen.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: double
+                      description: Latitude of destination.
+                      example: 46.7128
+                    longitude:
+                      type: number
+                      format: double
+                      description: Longitude of destination.
+                      example: 11.1211
+                  required:
+                    - latitude
+                    - longitude
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  body:
+                    type: string
+                    description: URL for navigation.
+        '400':
+          description: no destination given, longitude null or latitude null or both
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: NO Destination
+                    example: NO Destination
+                    
+components:
+  schemas:
+    Rack:
+      type: object
+      properties:
+        id:
+          type: string
+          description: racks Id.
+          example: "1"
+        latitude:
+          type: number
+          format: double
+          description: Latitude
+          example: 46.7128
+        longitude:
+          type: number
+          format: double
+          description: Longitude 
+          example: 11.1211
+        distance:
+          type: number
+          format: double
+          description: distance position-rack
+        travelTime:
+          type: number
+          format: double
+          description: travel time position-rack
+    BikeSharingStation:
+      type: object
+      properties:
+        id:
+          type: string
+          description: BikeSharingStation Id.
+          example: "1"
+        latitude:
+          type: number
+          format: double
+          description: BikeSharingStation Latitude
+          example: 46.7128
+        longitude:
+          type: number
+          format: double
+          description: BikeSharingStation Longitude 
+          example: 11.1211
+        distance:
+          type: number
+          format: double
+          description: distance position-Bike sharing station
+        travelTime:
+          type: number
+          format: double
+          description: travel time position-Bike sharing station
+        numPostiLiberi:
+          type: number
+          format: double
+          description: available places of bike sharing station
+        numBiciDisponibili:
+          type: number
+          format: double
+          description: available bikes of bike sharing station
+          

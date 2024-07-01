@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <title>TrentoInBici-Admin</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-content {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+            margin-bottom: 50px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Admin Page</a>
+        <div class="collapse navbar-collapse justify-content-end">
+            <ul class="navbar-nav">
+                <button id="btnLogout" class="btn btn-primary mr-2 log" onclick="logout()">Logout</button>
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <div class="admin-content">
+            <h1>Tabella rastrelliere da aggiungere: </h1>
+            <ul id="rastrelliereDaAggiungere" class="list-group mt-3">
+            </ul>
+        </div>
+    </div>
+    <script>
+        var admin = {
+            token: null,
+            id: null,
+            sessionTime: null
+        };
+
+        var timeout;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            admin.token = sessionStorage.getItem("loggedUserToken");
+            admin.id = sessionStorage.getItem("loggedUserId");
+            admin.sessionTime = sessionStorage.getItem("loggedUserTime");
+            admin.sessionTime = admin.sessionTime * 1000; // in secondi
+
+            if (admin.token) {
+                console.log("Tempo della sessione in ms: " + admin.sessionTime);
+                visualizzaRastrellieraDaAggiungere();
+                resetTimeout();
+            }
+        });
+
+        async function chiamataAPIAdminDatabaseRiceviRastrelliere() {
+            try {
+                const response = await fetch('/api/v2/adminDatabase', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-access-token': admin.token
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error', error);
+                throw error;
+            }
+        }
+        async function chiamataAPIAdminDatabaseAggiungiRastrelliere(id, lat, lon) {
+            try {
+                const response = await fetch('/api/v2/adminDatabase/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-access-token': admin.token
+                    },
+                    body: JSON.stringify({ id: id, position: { latitude: lat, longitude: lon } })
+
+                    });
+
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.error('Error', error);
+                    throw error; 
+                }
+        }
+        async function chiamataAPIAdminDatabaseEliminaRastrelliere(id, lat, lon) {
+            try {
+                const response = await fetch('/api/v2/adminDatabase/noAdd', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-access-token': admin.token
+                    },
+                    body: JSON.stringify({ id: id, position: { latitude: lat, longitude: lon } })
+
+                    });
+
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.error('Error', error);
+                    throw error; 
+                }
+        }
+
+        async function visualizzaRastrellieraDaAggiungere() {
+
+            const ul = document.getElementById('rastrelliereDaAggiungere'); // Lista per visualizzare i dati delle rastrelliere
+            ul.textContent = '';
+
+            const data = await chiamataAPIAdminDatabaseRiceviRastrelliere();
+
+            console.log(data);
+            let id;
+            let lat;
+            let lon;
+
+            if(data.body.length==0){
+                let descrizioneRastrelliera = document.createElement('p');
+                descrizioneRastrelliera.textContent="Non sono presenti rastrelliere da aggiungere"
+                ul.appendChild(descrizioneRastrelliera)
+            }
+
+            data.body.forEach(function(rastrelliera) {
+                id=rastrelliera.id;
+                lat=rastrelliera.latitude;
+                lon=rastrelliera.longitude
+                let descrizioneRastrelliera = document.createElement('p');
+                let btnAggiungiRastrelliera = document.createElement('button');
+                btnAggiungiRastrelliera.classList.add('elemCreato', 'btn', 'btn-primary', 'mb-2');
+                btnAggiungiRastrelliera.style.display = 'block';
+                let btnEliminaRastrelliera = document.createElement('button');
+                btnEliminaRastrelliera.classList.add('elemCreato', 'btn', 'btn-primary', 'mb-2');
+                btnEliminaRastrelliera.style.display = 'block';
+                descrizioneRastrelliera.textContent = "Id: " + rastrelliera.id + ", Longitudine: " + rastrelliera.longitude + ", Latitude: " + rastrelliera.latitude;
+                btnAggiungiRastrelliera.textContent = "Aggiungi";
+                btnEliminaRastrelliera.textContent = "Elimina";
+
+                btnAggiungiRastrelliera.onclick = async function() {
+                    await chiamataAPIAdminDatabaseAggiungiRastrelliere(id, lat, lon)
+                    alert("Aggiunta correttamente rastrelliere");
+                    visualizzaRastrellieraDaAggiungere();
+                }
+
+                btnEliminaRastrelliera.onclick = async function() {
+                    await chiamataAPIAdminDatabaseEliminaRastrelliere(id, lat, lon);
+                    alert("Rimossa correttamente");
+                    visualizzaRastrellieraDaAggiungere();
+                }
+
+                //descrizioneRastrelliera.appendChild(descrizioneRastrelliera);
+                descrizioneRastrelliera.appendChild(btnAggiungiRastrelliera);
+                descrizioneRastrelliera.appendChild(btnEliminaRastrelliera);
+                ul.appendChild(descrizioneRastrelliera)
+            });
+
+            // Espandi il div admin-content in base al numero di elementi
+            document.querySelector('.admin-content').style.height = 'auto';
+        }
+
+        function resetTimeout() {
+            clearTimeout(timeout);
+            timeout = setTimeout(logout, admin.sessionTime);
+        }
+
+        function logout() {
+            alert("LOGOUT. Sarai reindirizzato alla pagina iniziale.");
+            sessionStorage.removeItem("loggedUserEmail");
+            sessionStorage.removeItem("loggedUserToken");
+            sessionStorage.removeItem("loggedUserId");
+            sessionStorage.removeItem("loggedUserSelf");
+            sessionStorage.removeItem("loggedUserTime");
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+.spinner-container {
+    display: none;
+    position: relative; /* posizione relativa per poter posizionare lo spinner in base a questo contenitore */
+    width: 100px; /* larghezza del contenitore */
+    height: 100px; /* altezza del contenitore */
+    margin: 0 auto; /* centrare il contenitore */
+  }
+  
+  .spinner {
+    position: absolute; /* posizione assoluta rispetto al contenitore */
+    top: 50%; /* posizionare la rotellina al centro verticalmente */
+    left: 50%; /* posizionare la rotellina al centro orizzontalmente */
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #3498db; /* colore della rotellina */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite; /* animazione */
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
+  @media screen and (max-width: 768px) {
+    .container {
+        position: relative;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0;
+        margin-right: 0;
+    }
+    .content {
+      position: relative;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      margin-left: 0;
+      margin-right: 0;
+  }
+  .row{
+    flex: 0 0 100%;
+        max-width: 100%;
+  }
+   .col-md-6:first-child {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+  
+    .col-md-6:last-child {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    #about{
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+  
+    #mappaRastrelliera {
+        height: 400px; /* Puoi modificare l'altezza a seconda delle tue necessità */
+        width: 100%; /* Assicura che la mappa occupi tutta la larghezza del genitore */
+    }
+  }
+  body {
+    /*background-color: #afa8a8;*/ /* Colore di sfondo grigio chiaro */
+    background-image: url('res/sfondo.jpg'); /* Percorso dell'immagine */
+    background-size: cover; /* Adatta l'immagine alla dimensione del body */
+    background-repeat: no-repeat; /* Evita che l'immagine si ripeta */
+    background-position: center center; /* Centra l'immagine */
+    background-attachment: fixed;
+    background-color: rgba(255, 255, 255, 2);
+}
+h1 {
+  font-family: 'Montserrat', sans-serif; /* Utilizza Montserrat come primo font scelta, con un fallback a font sans-serif */
+  font-size: 50px;
+  color: #333;
+}
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Colore bianco con trasparenza al 80% */
+  z-index: 1;
+}
+
+.content {
+  position: relative;
+  z-index: 2; /* Assicura che il contenuto sia sopra l'overlay */
+  padding-bottom: 10px;
+}
+#about{
+  padding-top: 5px;
+}
+#divResult {
+  background-color: #fff;
+  height: 600px;
+  width: 100%;
+  padding: 20px;
+  border: 5px solid #000;
+  margin-top: 24px;
+}
+.page-description {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 100px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 50px; /* Spazio sopra */
+  margin-bottom: 50px; /* Spazio sotto */
+  text-align: center;
+  height: 650px;
+  overflow: hidden;
+}
+.bike-animation {
+  position: absolute;
+  top: 90px;
+  left: 30%;
+  width: 10%;
+  height: 8%;
+  background: url('res/icona-bicicletta.png') no-repeat;
+  background-size: contain;
+  animation: moveBike 10s linear infinite;
+  opacity: 0.5;
+  z-index: 1; 
+}
+
+@keyframes moveBike {
+  0% {
+      left: 20%;
+  }
+  100% {
+      left: 70%;
+  }
+}
+.images-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.images-container img {
+  width: 48%;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+}
+.page-info {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 50px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 50px; /* Spazio sopra */
+  margin-bottom: 50px; /* Spazio sotto */
+  text-align: center;
+  height: 900px;
+  overflow: hidden;
+}
+.info-image {
+  width: 300px; 
+  height: inline-block; 
+  display: block; 
+  margin: 20px auto; 
+}
+#mappaRastrelliera {
+  height: 600px;
+  width: 100%;
+  border: 5px solid #000; /* Bordo di 2px di colore nero */
+}
+#btnInizia{
+    padding: 15px 30px; /* Dimensioni del pulsante */
+    font-size: 18px; /* Dimensione del testo del pulsante */
+}
+
+.btn-custom {
+  position: relative;
+}
+
+.btn-text {
+  font-size: 16px;
+}
+
+.tooltip {
+  visibility: hidden;
+  width: 200px;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 12px;
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.btn-custom:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(5px);
+}
+

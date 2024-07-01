@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="script.js"></script>
+    <script src="login.js"></script>
+    <title>Modulo di Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 2);
+            background-image: url('res/sfondo.jpg');
+            background-size: cover; /* Adatta l'immagine alla dimensione del body */
+            background-repeat: no-repeat; /* Evita che l'immagine si ripeta */
+            background-position: center center; /* Centra l'immagine */
+            background-attachment: fixed;
+        }
+        /*#overlayLogin {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); Colore bianco con trasparenza al 80% 
+        z-index: 1;
+        }*/
+        h1 {
+            margin-top: 20px;
+            font-size: 3em;
+            color: #333;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            width: 400px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .login-form span {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .login-form input {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .login-form button {
+            padding: 12px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .login-form button:hover {
+            background-color: #0056b3;
+        }
+
+        .exit-button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="overlayLogin"></div>
+    <h1>TrentoInBici</h1>
+    <div class="container">
+        <h2>Login Form</h2>
+        <form action="api/v1/user" method="post" name="loginform" id="loginform" class="login-form">
+            <span id="loggedUser"></span>
+            <input type="email" name="email" id="loginEmail" placeholder="Email"/>
+            <input type="password" name="password" id="loginPassword" placeholder="Password"/>
+            <button type="button" onclick="login()">LogIn</button>
+            <div class="exit-button-container">
+                <a href="index.html"><button type="button">Esci</button></a>
+            </div>
+        </form>
+        <p id="loggedUser"></p>
+    </div>
+    <script>
+        var loggedUser = {};
+
+        /**
+         * This function is called when login button is pressed.
+         * Note that this does not perform an actual authentication of the user.
+         * A student is loaded given the specified email,
+         * if it exists, the studentId is used in future calls.
+         */
+    </script>
+</body>
+</html>

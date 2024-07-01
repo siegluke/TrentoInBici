@@ -1,0 +1,154 @@
+openapi: 3.0.0
+info:
+  version: '1.0'
+  title: "TrentoInBici OpenAPI 3.0"
+  description: API for moving and parking the bicycle in Trento. 
+  license:
+    name: MIT
+servers:
+  - url: https://trentoinbici.onrender.com/api/v1
+    description: trentoinbici.onrender.com
+paths:
+  /biciPropria:
+    post:
+      description: >-
+        Return the 5 racks nearest to a position
+      summary: Return 5 racks near to a position
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: double
+                      description: Latitude of position.
+                      example: 46.7128
+                    longitude:
+                      type: number
+                      format: double
+                      description: Longitude of position.
+                      example: 11.1211
+                  required:
+                    - latitude
+                    - longitude
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Position received successfully
+                  body:
+                    type: array
+                    description: List of 5 racks near to the a position with distances and time
+                    items:
+                     $ref: '#/components/schemas/Rack'
+        '400':
+            description: no position given, longitude null or latitude null or both
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      description: NO Position
+                      example: NO Position
+        '401':
+            description: position out of borders of Trento
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      description: La posizione non è compresa nel comune di Trento
+                      example: La posizione non è compresa nel comune di Trento                      
+  /googleMaps:
+    post:
+      summary: Start navigation on GoogleMaps
+      description: >
+        Start navigation on GoogleMaps with the destination choosen.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: double
+                      description: Latitude of destination.
+                      example: 46.7128
+                    longitude:
+                      type: number
+                      format: double
+                      description: Longitude of destination.
+                      example: 11.1211
+                  required:
+                    - latitude
+                    - longitude
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  body:
+                    type: string
+                    description: URL for navigation.
+        '400':
+          description: no destination given, longitude null or latitude null or both
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: NO Destination
+                    example: NO Destination
+                    
+components:
+  schemas:
+    Rack:
+      type: object
+      properties:
+        id:
+          type: string
+          description: racks Id.
+          example: "1"
+        latitude:
+          type: number
+          format: double
+          description: Latitude
+          example: 46.7128
+        longitude:
+          type: number
+          format: double
+          description: Longitude 
+          example: 11.1211
+        distance:
+          type: number
+          format: double
+          description: distance position-rack
+        travelTime:
+          type: number
+          format: double
+          description: travel time position-rack
